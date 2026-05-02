@@ -1,0 +1,42 @@
+[package]
+name = "furugura"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "CLI-only Linux meeting capture, transcription, and AI summary"
+license = "MIT"
+repository = "https://github.com/nik-savrov/furugura"
+readme = "README.md"
+keywords = ["meeting", "transcription", "whisper", "pipewire", "cli"]
+categories = ["command-line-utilities", "multimedia::audio"]
+
+[[bin]]
+name = "furu"
+path = "src/main.rs"
+
+[lib]
+name = "furugura"
+path = "src/lib.rs"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive", "env"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+directories = "5.0"
+anyhow = "1.0"
+thiserror = "2.0"
+tokio = { version = "1.40", features = ["full"] }
+chrono = { version = "0.4", features = ["serde"] }
+hound = "3.5"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[dev-dependencies]
+tempfile = "3.10"
+pretty_assertions = "1.4"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = "symbols"
