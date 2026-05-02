@@ -54,6 +54,13 @@ impl Paths {
         self.runtime_dir.join("active-meeting.json")
     }
 
+    /// Lockfile target for the cross-process `flock` that gates `furu start`.
+    /// Held separately from `active-meeting.json` because the state file is
+    /// rewritten via atomic rename, which would orphan a flock held on it.
+    pub fn lock_file(&self) -> PathBuf {
+        self.runtime_dir.join("lock")
+    }
+
     pub fn runtime_meeting_dir(&self, id: &str) -> PathBuf {
         self.runtime_dir.join(id)
     }

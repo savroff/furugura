@@ -1,5 +1,9 @@
 pub mod audio;
 pub mod cli;
 pub mod config;
+pub mod lifecycle;
+pub mod live;
+pub mod output;
 pub mod paths;
+pub mod summarize;
 pub mod transcribe;

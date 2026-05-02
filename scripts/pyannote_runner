@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+"""Thin pyannote.audio diarization wrapper.
+
+Furugura calls this from `furu stop`'s finalize pipeline. The HuggingFace
+token is read from the `HF_TOKEN` environment variable (passed by the parent
+process via subprocess env, never on the command line) so it does not leak
+through `/proc/<pid>/cmdline`.
+
+Output: RTTM rows on stdout, one per diarized turn. Errors and pyannote's
+own progress logs go to stderr.
+
+Usage:
+    HF_TOKEN=hf_xxx pyannote_runner /path/to/meeting.wav [file_id]
+
+`file_id` is the second column of the RTTM rows. It defaults to "meeting".
+"""
+import os
+import sys
+
+
+def main() -> int:
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+        print("usage: pyannote_runner <wav> [file_id]", file=sys.stderr)
+        return 2
+
+    wav = sys.argv[1]
+    file_id = sys.argv[2] if len(sys.argv) == 3 else "meeting"
+
+    token = os.environ.get("HF_TOKEN")
+    if not token:
+        print("HF_TOKEN env var is required", file=sys.stderr)
+        return 2
+
+    try:
+        from pyannote.audio import Pipeline
+    except ImportError as e:
+        print(
+            f"pyannote.audio not importable: {e}\n"
+            "Install with `pipx install pyannote.audio` or "
+            "`pip install --user pyannote.audio`.",
+            file=sys.stderr,
+        )
+        return 3
+
+    pipeline = Pipeline.from_pretrained(
+        "pyannote/speaker-diarization-3.1",
+        use_auth_token=token,
+    )
+    diarization = pipeline(wav)
+
+    for turn, _, speaker in diarization.itertracks(yield_label=True):
+        print(
+            f"SPEAKER {file_id} 1 {turn.start:.3f} {turn.duration:.3f} "
+            f"<NA> <NA> {speaker} <NA> <NA>"
+        )
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
