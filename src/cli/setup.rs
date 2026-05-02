@@ -74,23 +74,23 @@ pub struct DepReport {
 fn dep_specs() -> Vec<(&'static str, &'static [&'static str], &'static str)> {
     vec![
         ("pw-record",       &["pw-record", "--help"],
-            "pacman -S pipewire (PipeWire is the v1 audio target)"),
+            "sudo pacman -S pipewire (PipeWire is the v1 audio target)"),
         ("pactl",           &["pactl", "--version"],
-            "pacman -S libpulse"),
+            "sudo pacman -S libpulse"),
         ("ffmpeg",          &["ffmpeg", "-version"],
-            "pacman -S ffmpeg"),
+            "sudo pacman -S ffmpeg"),
         ("whisper-cli",     &["whisper-cli", "--help"],
-            "paru -S whisper.cpp-vulkan (or build whisper.cpp from source)"),
+            "yay -S whisper.cpp-vulkan  (or paru -S; or build whisper.cpp from source)"),
         ("whisper-stream",  &["whisper-stream", "--help"],
-            "paru -S whisper.cpp-vulkan (ships whisper-stream alongside whisper-cli)"),
+            "yay -S whisper.cpp-vulkan  (ships whisper-stream alongside whisper-cli)"),
         ("ollama",          &["ollama", "--version"],
-            "pacman -S ollama then `systemctl --user enable --now ollama`"),
+            "sudo pacman -S ollama && systemctl --user enable --now ollama && ollama pull gemma3:4b"),
         ("python",          &["python", "-c", "import sys"],
-            "pacman -S python"),
+            "sudo pacman -S python"),
         ("pyannote.audio",  &["python", "-c", "import pyannote.audio"],
-            "pipx install pyannote.audio (or pip install --user pyannote.audio)"),
+            "sudo pacman -S python-pipx && pipx install pyannote.audio"),
         ("vulkaninfo",      &["vulkaninfo", "--summary"],
-            "pacman -S vulkan-tools (and one of: vulkan-intel, vulkan-radeon, nvidia-utils)"),
+            "sudo pacman -S vulkan-tools  (and one of: vulkan-intel, vulkan-radeon, nvidia-utils)"),
     ]
 }
 
