@@ -6,7 +6,7 @@ You're on Linux. You have meetings. Granola is the tool everyone raves about, bu
 
 Furugura puts that loop on Linux. Press `furu start`, have your meeting, press `furu stop`. A minute or two later you have a Markdown file with a clean summary, the full diarized transcript, and any quick notes you typed during the call. Everything runs locally by default. The terminal is the UI.
 
-The name is borrowed from **フルグラ** — the Japanese portmanteau of fruit + granola, popularized by Calbee's Frugra cereal. Granola, but richer.
+The name is **フルグラ** (furugura) — a Japanese portmanteau of fruit + granola, the everyday word for a fruit-and-granola breakfast mix. Granola, but richer.
 
 ---
 
