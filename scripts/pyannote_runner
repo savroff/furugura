@@ -1,19 +1,39 @@
-#!/usr/bin/env python3
-"""Thin pyannote.audio diarization wrapper.
+#!/usr/bin/env bash
+#
+# Thin pyannote.audio diarization wrapper.
+#
+# Resolves a Python with `pyannote.audio` installed (pipx venv first,
+# then system python), then runs an inline diarization driver that
+# reads the wav path + optional file_id from argv and the HF token
+# from $HF_TOKEN.
+#
+# Output: RTTM rows on stdout. Errors and pyannote progress logs on stderr.
 
-Furugura calls this from `furu stop`'s finalize pipeline. The HuggingFace
-token is read from the `HF_TOKEN` environment variable (passed by the parent
-process via subprocess env, never on the command line) so it does not leak
-through `/proc/<pid>/cmdline`.
+set -euo pipefail
 
-Output: RTTM rows on stdout, one per diarized turn. Errors and pyannote's
-own progress logs go to stderr.
+PIPX_PY="$HOME/.local/share/pipx/venvs/pyannote-audio/bin/python"
+SYS_PY="$(command -v python3 || command -v python || true)"
 
-Usage:
-    HF_TOKEN=hf_xxx pyannote_runner /path/to/meeting.wav [file_id]
+PY=""
+for candidate in "$PIPX_PY" "$SYS_PY"; do
+    if [[ -n "$candidate" && -x "$candidate" ]] \
+       && "$candidate" -c "import pyannote.audio" 2>/dev/null; then
+        PY="$candidate"
+        break
+    fi
+done
 
-`file_id` is the second column of the RTTM rows. It defaults to "meeting".
-"""
+if [[ -z "$PY" ]]; then
+    {
+        echo "pyannote_runner: no Python with pyannote.audio installed found."
+        echo "  (tried: $PIPX_PY and $SYS_PY)"
+        echo "  Install with: pipx install pyannote.audio"
+    } >&2
+    exit 3
+fi
+
+exec "$PY" - "$@" <<'PYTHON'
+"""Inline diarization driver. Receives wav + optional file_id on argv."""
 import os
 import sys
 
@@ -31,16 +51,7 @@ def main() -> int:
         print("HF_TOKEN env var is required", file=sys.stderr)
         return 2
 
-    try:
-        from pyannote.audio import Pipeline
-    except ImportError as e:
-        print(
-            f"pyannote.audio not importable: {e}\n"
-            "Install with `pipx install pyannote.audio` or "
-            "`pip install --user pyannote.audio`.",
-            file=sys.stderr,
-        )
-        return 3
+    from pyannote.audio import Pipeline
 
     pipeline = Pipeline.from_pretrained(
         "pyannote/speaker-diarization-3.1",
@@ -53,9 +64,9 @@ def main() -> int:
             f"SPEAKER {file_id} 1 {turn.start:.3f} {turn.duration:.3f} "
             f"<NA> <NA> {speaker} <NA> <NA>"
         )
-
     return 0
 
 
 if __name__ == "__main__":
     sys.exit(main())
+PYTHON

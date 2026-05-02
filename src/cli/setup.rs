@@ -87,7 +87,11 @@ fn dep_specs() -> Vec<(&'static str, &'static [&'static str], &'static str)> {
             "sudo pacman -S ollama && systemctl --user enable --now ollama && ollama pull gemma3:4b"),
         ("python",          &["python", "-c", "import sys"],
             "sudo pacman -S python"),
-        ("pyannote.audio",  &["python", "-c", "import pyannote.audio"],
+        ("pyannote.audio",  &["bash", "-c",
+            "PIPX_PY=\"$HOME/.local/share/pipx/venvs/pyannote-audio/bin/python\"; \
+             { [ -x \"$PIPX_PY\" ] && \"$PIPX_PY\" -c 'import pyannote.audio' 2>/dev/null; } || \
+             { command -v python3 >/dev/null && python3 -c 'import pyannote.audio' 2>/dev/null; } || \
+             { command -v python  >/dev/null && python  -c 'import pyannote.audio' 2>/dev/null; }"],
             "sudo pacman -S python-pipx && pipx install pyannote.audio"),
         ("vulkaninfo",      &["vulkaninfo", "--summary"],
             "sudo pacman -S vulkan-tools  (and one of: vulkan-intel, vulkan-radeon, nvidia-utils)"),
