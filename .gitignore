@@ -1,0 +1,14 @@
+# Rust
+target/
+Cargo.lock.bak
+**/*.rs.bk
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# Per-meeting outputs (the user's data, not the project's)
+# Furugura writes to ~/Meetings/ by default; nothing project-local to ignore.
